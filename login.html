@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        #video {
+            width: 100%;
+            max-width: 400px;
+        }
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="loginForm" action="/login" method="post" enctype="multipart/form-data">
+        <video id="video" playsinline autoplay></video>
+        <canvas id="canvas" width="400" height="300"></canvas>
+        <button type="button" onclick="captureImage()">Capture Image</button>
+        <!-- Hidden input field to store the captured image data -->
+        <input type="hidden" name="image" id="image">
+        <button type="button" onclick="prepareFormData()">Login</button>
+    </form>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const imageInput = document.getElementById('image');
+        
+        // Access webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((err) => {
+                console.error('Error accessing webcam: ', err);
+            });
+
+        // Capture image from webcam
+        function captureImage() {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert canvas to data URL
+            const imageDataUrl = canvas.toDataURL('image/png');
+
+            // Set the captured image data in the hidden input field
+            imageInput.value = imageDataUrl;
+
+            // Optionally, display the captured image (you can remove this part if not needed)
+            const capturedImage = new Image();
+            capturedImage.src = imageDataUrl;
+            document.body.appendChild(capturedImage);
+        }
+
+        // Function to be called before form submission
+        function prepareFormData() {
+            // Set the image data directly to the hidden input field
+            imageInput.value = canvas.toDataURL('image/png');
+
+            // Then submit the form
+            document.getElementById('loginForm').submit();
+        }
+    </script>
+</body>
+</html>
+
